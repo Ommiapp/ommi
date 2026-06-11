@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ommi Learning Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+</head>
+<body style="margin: 0; padding: 0; background-color: #f9f9f9;">
+
+<div style="width: 100%; padding: 60px 0; box-sizing: border-box; display: flex; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <div style="width: 100%; max-width: 1200px; padding: 0 24px; box-sizing: border-box; color: #111;">
+   
+    <p style="text-transform: uppercase; font-size: 11px; letter-spacing: 2px; color: #888; font-weight: 700; margin: 0 0 12px 0;">YOUR PERSONALIZED ROADMAP</p>
+    <h1 style="font-family: 'Playfair Display', Georgia, serif; font-size: 42px; font-weight: 800; margin: 0 0 16px 0; letter-spacing: -1px;">Learning Workspace</h1>
+    <p style="font-size: 16px; color: #666; margin: 0 0 40px 0; font-weight: 400; max-width: 600px; line-height: 1.5;">
+      Select a timeline block below to view your structured sprint goals and track your completions. Tracked Track: <span id="user-archetype" style="font-weight: 600; color: #111;">Loading Track...</span>
+    </p>
+   
+    <div style="display: flex; gap: 8px; border-bottom: 1px solid #eaeaea; padding-bottom: 16px; margin-bottom: 40px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
+      <button class="week-tab" id="tab_weeks_1_2" onclick="switchTimelineTab('weeks_1_2')" style="background: #111111; color: #ffffff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s;">Weeks 1–2</button>
+      <button class="week-tab" id="tab_weeks_3_4" onclick="switchTimelineTab('weeks_3_4')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s;">Weeks 3–4</button>
+      <button class="week-tab" id="tab_weeks_5_6" onclick="switchTimelineTab('weeks_5_6')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s;">Weeks 5–6</button>
+      <button class="week-tab" id="tab_weeks_7_8" onclick="switchTimelineTab('weeks_7_8')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s;">Weeks 7–8</button>
+      <button class="week-tab" id="tab_weeks_9_10" onclick="switchTimelineTab('weeks_9_10')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s;">Weeks 9–10</button>
+      <button class="week-tab" id="tab_weeks_11_12" onclick="switchTimelineTab('weeks_11_12')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s;">Weeks 11–12</button>
+    </div>
+   
+    <div id="ommi-mvp-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; width: 100%; box-sizing: border-box;">
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Empty starting roadmap layout - will be filled completely by your Pipedream webhook
+let dynamicRoadmap = {
+  weeks_1_2: [], weeks_3_4: [], weeks_5_6: [], weeks_7_8: [], weeks_9_10: [], weeks_11_12: []
+};
+
+let activeTab = 'weeks_1_2';
+let userProgressLog = JSON.parse(localStorage.getItem('ommi_progress_tracker_v2')) || {};
+
+// ==========================================
+// LIVE PRODUCTION DATA GATEWAY
+// ==========================================
+async function fetchLiveRoadmap() {
+  try {
+    // Verified Pipedream Access Endpoint
+    const PIPEDREAM_URL = "https://eo3m0qrt2v1vyb7.m.pipedream.net";
+   
+    const response = await fetch(PIPEDREAM_URL);
+    if (!response.ok) throw new Error("Data retrieval connection unsuccessful.");
+   
+    const liveData = await response.json();
+   
+    // Dynamically insert the user's actual generated career track name
+    if (liveData.careerGoal) {
+      document.getElementById('user-archetype').innerText = liveData.careerGoal;
+    } else {
+      document.getElementById('user-archetype').innerText = "Custom Path";
+    }
+
+    const roadmapPayload = liveData.roadmap || liveData;
+   
+    Object.keys(roadmapPayload).forEach(key => {
+      dynamicRoadmap[key] = roadmapPayload[key];
+    });
+   
+    renderMvpDashboard();
+  } catch (error) {
+    console.error("Could not fetch cloud data, loading local empty template states:", error);
+    document.getElementById('user-archetype').innerText = "Awaiting Setup";
+    renderMvpDashboard();
+  }
+}
+// ==========================================
+
+function renderMvpDashboard() {
+  let htmlBlock = '';
+  const currentCourses = dynamicRoadmap[activeTab] || [];
+ 
+  if (currentCourses.length === 0) {
+    htmlBlock = `<p style="color: #666; font-size: 14px; grid-column: 1/-1; text-align: center; padding: 40px 0;">No milestones compiled for this timeline block yet. Complete your profile registration to synchronize data.</p>`;
+    document.getElementById('ommi-mvp-grid').innerHTML = htmlBlock;
+    return;
+  }
+ 
+  currentCourses.forEach(course => {
+    const isCompleted = userProgressLog[course.id] === true;
+   
+    const cardBg = isCompleted ? '#fdfdfd' : '#ffffff';
+    const borderColor = isCompleted ? '#111111' : '#eaeaea';
+    const checkIcon = isCompleted ? '✓' : '';
+    const btnText = isCompleted ? 'Completed' : 'Mark as Complete';
+    const btnBg = isCompleted ? '#111111' : '#ffffff';
+    const btnTextColor = isCompleted ? '#ffffff' : '#111111';
+
+    htmlBlock += `
+      <div style="background: ${cardBg}; border-radius: 12px; border: 1px solid ${borderColor}; padding: 28px 24px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.01); box-sizing: border-box;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <p style="font-size: 11px; letter-spacing: 1.5px; color: #a0a0a0; font-weight: 600; text-transform: uppercase; margin: 0;">
+              ${course.tag || 'SPRINT'} • OMMI CORE
+            </p>
+            <div style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #111111; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; background: ${isCompleted ? '#111111' : 'transparent'}; color: white;">
+              ${checkIcon}
+            </div>
+          </div>
+         
+          <h3 style="font-size: 16px; line-height: 1.4; font-weight: 700; color: #111; margin: 0 0 16px 0; min-height: 44px;">
+            ${course.title}
+          </h3>
+         
+          <a href="${course.link}" target="_blank" style="text-decoration: none; color: #111111; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 24px;">
+            Launch Class Resource <span style="font-size: 14px;">↗</span>
+          </a>
+        </div>
+       
+        <button onclick="toggleCourseMilestone('${course.id}')" style="width: 100%; border: 1px solid #111111; background: ${btnBg}; color: ${btnTextColor}; padding: 10px 0; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer;">
+          ${btnText}
+        </button>
+      </div>
+    `;
+  });
+ 
+  document.getElementById('ommi-mvp-grid').innerHTML = htmlBlock;
+}
+
+window.switchTimelineTab = function(tabId) {
+  activeTab = tabId;
+ 
+  document.querySelectorAll('.week-tab').forEach(btn => {
+    btn.style.background = 'transparent';
+    btn.style.color = '#666666';
+  });
+ 
+  const activeBtn = document.getElementById(`tab_${tabId}`);
+  activeBtn.style.background = '#111111';
+  activeBtn.style.color = '#ffffff';
+ 
+  renderMvpDashboard();
+}
+
+window.toggleCourseMilestone = function(courseId) {
+  userProgressLog[courseId] = !userProgressLog[courseId];
+  localStorage.setItem('ommi_progress_tracker_v2', JSON.stringify(userProgressLog));
+  renderMvpDashboard();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderMvpDashboard();
+  fetchLiveRoadmap();
+});
+</script>
+
+</body>
+</html>

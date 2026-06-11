@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ommi — Know Exactly What AI Skills You Need</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #ffffff;
+    --gray-100: #f5f5f4;
+    --gray-200: #e8e8e6;
+    --gray-400: #a3a39f;
+    --gray-600: #6b6b67;
+    --gray-800: #2a2a28;
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 5vw;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--black);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+  .nav-cta {
+    background: var(--black);
+    color: var(--white);
+    padding: 0.6rem 1.4rem;
+    border-radius: 100px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .nav-cta:hover { opacity: 0.8; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center;
+    padding: 8rem 5vw 4rem;
+    background: var(--white);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -20%; left: -10%;
+    width: 60%; height: 80%;
+    background: radial-gradient(ellipse, #f0f0ee 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray-600);
+    margin-bottom: 1.5rem;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 100px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--black);
+    max-width: 14ch;
+    margin: 0 auto 1.5rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gray-600);
+  }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    color: var(--gray-600);
+    max-width: 48ch;
+    margin: 0 auto 2.5rem;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+  .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--black);
+    color: var(--white);
+    padding: 0.9rem 2rem;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-primary:hover { background: var(--gray-800); transform: translateY(-1px); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--black);
+    padding: 0.9rem 2rem;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid var(--gray-200);
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--black); }
+  .hero-trust {
+    margin-top: 2rem;
+    font-size: 0.8rem;
+    color: var(--gray-400);
+    letter-spacing: 0.05em;
+  }
+  .hero-scroll {
+    position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+    color: var(--gray-400); font-size: 0.75rem;
+  }
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--gray-400), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+  /* ── TICKER ── */
+  .ticker {
+    background: var(--black);
+    color: var(--white);
+    padding: 0.75rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner {
+    display: inline-flex; gap: 3rem;
+    animation: tickerScroll 30s linear infinite;
+  }
+  .ticker-inner span { font-size: 0.8rem; letter-spacing: 0.1em; opacity: 0.7; }
+  .ticker-inner span.dot { opacity: 0.3; }
+  @keyframes tickerScroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* ── SECTION BASE ── */
+  section { padding: 6rem 5vw; }
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--black);
+    margin-bottom: 1.2rem;
+  }
+  .section-sub {
+    font-size: 1.05rem;
+    color: var(--gray-600);
+    max-width: 50ch;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .divider { width: 100%; height: 1px; background: var(--gray-200); }
+
+  /* ── PROBLEM ── */
+  .problem { background: var(--gray-100); }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5px;
+    margin-top: 3rem;
+    background: var(--gray-200);
+    border: 1.5px solid var(--gray-200);
+  }
+  .problem-item {
+    background: var(--gray-100);
+    padding: 2rem;
+  }
+  .problem-x {
+    font-family: var(--serif);
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--gray-200);
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+  .problem-item h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--black);
+    margin-bottom: 0.5rem;
+  }
+  .problem-item p {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how { background: var(--white); }
+  .how-steps {
+    margin-top: 3.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0;
+    position: relative;
+  }
+  .step {
+    padding: 2.5rem 2rem;
+    border-left: 1px solid var(--gray-200);
+    position: relative;
+  }
+  .step:first-child { border-left: none; }
+  .step-num {
+    font-family: var(--serif);
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--gray-200);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+  .step h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--black);
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .step p {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  .step-cta-wrap {
+    margin-top: 3rem;
+    display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+  }
+  .sixty-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    color: var(--gray-600);
+  }
+  .sixty-badge strong { color: var(--black); }
+
+  /* ── SOCIAL PROOF ── */
+  .proof { background: var(--black); color: var(--white); }
+  .proof .section-label { color: rgba(255,255,255,0.3); }
+  .proof .section-title { color: var(--white); }
+  .proof .section-sub { color: rgba(255,255,255,0.5); }
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    margin-top: 3rem;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .proof-item {
+    background: var(--black);
+    padding: 2.5rem;
+  }
+  .proof-quote {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-style: italic;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 1.5rem;
+  }
+  .proof-author {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .proof-author strong {
+    display: block;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.85rem;
+    margin-bottom: 0.15rem;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  /* ── AI UPDATES ── */
+  .updates { background: var(--gray-100); }
+  .updates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-top: 2.5rem;
+  }
+  .update-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    padding: 1.5rem;
+    border-radius: 4px;
+    transition: border-color 0.2s;
+  }
+  .update-card:hover { border-color: var(--black); }
+  .update-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-bottom: 0.75rem;
+  }
+  .update-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--black);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+  .update-card p {
+    font-size: 0.85rem;
+    color: var(--gray-600);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* ── COMMUNITY ── */
+  .community {
+    background: var(--white);
+    text-align: center;
+  }
+  .community-inner {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .whatsapp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #25D366;
+    color: var(--white);
+    padding: 1rem 2rem;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    margin-top: 2rem;
+    transition: all 0.2s;
+  }
+  .whatsapp-btn:hover { background: #1db954; transform: translateY(-1px); }
+  .wa-icon { width: 22px; height: 22px; fill: white; }
+
+  /* ── CTA ── */
+  .final-cta {
+    background: var(--black);
+    color: var(--white);
+    text-align: center;
+    padding: 8rem 5vw;
+  }
+  .final-cta .section-label { color: rgba(255,255,255,0.3); }
+  .final-cta h2 {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    max-width: 16ch;
+    margin: 0 auto 1.5rem;
+  }
+  .final-cta p {
+    color: rgba(255,255,255,0.45);
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+  }
+  .btn-white {
+    background: var(--white);
+    color: var(--black);
+    padding: 1rem 2.5rem;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s;
+  }
+  .btn-white:hover { background: var(--gray-100); transform: translateY(-1px); }
+
+  /* ── CONTACT ── */
+  .contact { background: var(--white); }
+  .contact-inner {
+    display: flex;
+    gap: 4rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .contact-info { flex: 1; min-width: 240px; }
+  .contact-info h3 {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+  .contact-info p {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    line-height: 1.7;
+    font-weight: 300;
+    margin-bottom: 1rem;
+  }
+  .contact-email {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--black);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid var(--gray-200);
+    padding-bottom: 2px;
+  }
+  .contact-email:hover { border-color: var(--black); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--black);
+    color: rgba(255,255,255,0.35);
+    padding: 2rem 5vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.8rem;
+  }
+  footer a { color: rgba(255,255,255,0.35); text-decoration: none; }
+  footer a:hover { color: rgba(255,255,255,0.7); }
+
+  /* ── CHATBOT ── */
+  #chat-widget {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 200;
+    font-family: var(--sans);
+  }
+  #chat-toggle {
+    width: 56px; height: 56px;
+    background: var(--black);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+    border: none;
+  }
+  #chat-toggle:hover { transform: scale(1.05); }
+  #chat-toggle svg { width: 24px; height: 24px; fill: white; }
+  #chat-box {
+    display: none;
+    position: absolute;
+    bottom: 70px; right: 0;
+    width: 340px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    flex-direction: column;
+  }
+  #chat-box.open { display: flex; }
+  .chat-header {
+    background: var(--black);
+    color: var(--white);
+    padding: 1rem 1.25rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .chat-avatar {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .chat-header-info h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .chat-header-info p {
+    font-size: 0.72rem;
+    opacity: 0.5;
+  }
+  .chat-messages {
+    flex: 1;
+    height: 320px;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: var(--gray-100);
+  }
+  .msg {
+    max-width: 85%;
+    padding: 0.65rem 0.9rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+  .msg.bot {
+    background: var(--white);
+    color: var(--black);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    border: 1px solid var(--gray-200);
+  }
+  .msg.user {
+    background: var(--black);
+    color: var(--white);
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .msg.typing { opacity: 0.5; font-style: italic; }
+  .chat-input-row {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--gray-200);
+    background: var(--white);
+  }
+  #chat-input {
+    flex: 1;
+    border: 1px solid var(--gray-200);
+    border-radius: 100px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-family: var(--sans);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #chat-input:focus { border-color: var(--black); }
+  #chat-send {
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: opacity 0.2s;
+  }
+  #chat-send:hover { opacity: 0.8; }
+  #chat-send svg { width: 16px; height: 16px; fill: white; }
+  .chat-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0 0.75rem 0.5rem;
+    background: var(--white);
+  }
+  .suggest-btn {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 100px;
+    background: transparent;
+    color: var(--gray-600);
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all 0.15s;
+  }
+  .suggest-btn:hover { border-color: var(--black); color: var(--black); }
+
+  /* ── ANIMATIONS ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 640px) {
+    .step { border-left: none; border-top: 1px solid var(--gray-200); }
+    .step:first-child { border-top: none; }
+    #chat-box { width: 300px; }
+    .contact-inner { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Ommi</a>
+  <a href="https://tally.so/r/ZjDPLe" class="nav-cta" target="_blank">Get My Roadmap</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="hero-eyebrow">AI Skill Gap Analyser</span>
+  <h1>Know <em>exactly</em> what AI skills you need.</h1>
+  <p class="hero-sub">Ommi analyses your background and goals, then delivers a personalised, week-by-week AI learning roadmap to your inbox in 60 seconds.</p>
+  <div class="hero-actions">
+    <a href="https://tally.so/r/ZjDPLe" class="btn-primary" target="_blank">
+      Get My Free Roadmap
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+    <a href="#how" class="btn-secondary">See how it works</a>
+  </div>
+  <p class="hero-trust">Built for students &nbsp;·&nbsp; Trusted by students &nbsp;·&nbsp; No credit card needed</p>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>scroll</span>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>AI is reshaping every industry</span><span class="dot">·</span>
+    <span>97 million new AI roles by 2027</span><span class="dot">·</span>
+    <span>Nigerian graduates need a clear path in</span><span class="dot">·</span>
+    <span>Ommi gives you that path in 60 seconds</span><span class="dot">·</span>
+    <span>Personalised. Free. Instant.</span><span class="dot">·</span>
+    <span>AI is reshaping every industry</span><span class="dot">·</span>
+    <span>97 million new AI roles by 2027</span><span class="dot">·</span>
+    <span>Nigerian graduates need a clear path in</span><span class="dot">·</span>
+    <span>Ommi gives you that path in 60 seconds</span><span class="dot">·</span>
+    <span>Personalised. Free. Instant.</span><span class="dot">·</span>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem">
+  <div class="container">
+    <p class="section-label fade-in">The Problem</p>
+    <h2 class="section-title fade-in">Learning AI is overwhelming.<br>Ommi fixes that.</h2>
+    <p class="section-sub fade-in">You know AI matters. You just don't know where to start. And nobody is telling you.</p>
+    <div class="problem-grid">
+      <div class="problem-item fade-in">
+        <span class="problem-x">✗</span>
+        <h3>No starting point</h3>
+        <p>You search YouTube and find a thousand tutorials. None of them are built for your specific background or goals.</p>
+      </div>
+      <div class="problem-item fade-in">
+        <span class="problem-x">✗</span>
+        <h3>Wrong courses</h3>
+        <p>You start a Coursera course. Two weeks in, you lose the thread. You quit. Not because you lack ambition. Because it wasn't built for you.</p>
+      </div>
+      <div class="problem-item fade-in">
+        <span class="problem-x">✗</span>
+        <h3>No personalised guidance</h3>
+        <p>Career advisors don't understand AI. Platforms give everyone the same roadmap. There is nobody sitting down with you specifically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="container">
+    <p class="section-label fade-in">How It Works</p>
+    <h2 class="section-title fade-in">From confused to clear<br>in 60 seconds.</h2>
+    <div class="how-steps">
+      <div class="step fade-in">
+        <div class="step-num">01</div>
+        <h3>Answer 8 questions</h3>
+        <p>Tell Ommi your background, target career role, available time, and personal goals. Takes less than 3 minutes.</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-num">02</div>
+        <h3>AI analyses your gaps</h3>
+        <p>Ommi's AI reads your specific profile and identifies the exact skill gaps between where you are and where you want to be.</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-num">03</div>
+        <h3>Get your roadmap</h3>
+        <p>Your personalised, week-by-week learning plan arrives in your inbox. Only free resources. Built for your schedule.</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-num">04</div>
+        <h3>Stay on track</h3>
+        <p>Automated reminders check in on your progress and keep you accountable to your learning plan.</p>
+      </div>
+    </div>
+    <div class="step-cta-wrap fade-in">
+      <a href="https://tally.so/r/ZjDPLe" class="btn-primary" target="_blank">Start Now — It's Free</a>
+      <span class="sixty-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Ready in <strong>&nbsp;60 seconds</strong>
+      </span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SOCIAL PROOF -->
+<section class="proof">
+  <div class="container">
+    <p class="section-label fade-in">What Students Are Saying</p>
+    <h2 class="section-title fade-in">Real students.<br>Real roadmaps.</h2>
+    <div class="proof-grid">
+      <div class="proof-item fade-in">
+        <p class="proof-quote">"I finally know what to study. Ommi gave me a clear 8-week plan in under a minute. I didn't expect it to be this specific."</p>
+        <div class="proof-author">
+          <strong>Ayodeji O.</strong>
+          Medicine · University of Ibadan
+        </div>
+      </div>
+      <div class="proof-item fade-in">
+        <p class="proof-quote">"I was completely lost with AI. Ommi told me exactly where to start based on my goals. Not a generic plan. Mine."</p>
+        <div class="proof-author">
+          <strong>Nifemi M.</strong>
+          Microbiology · University of Ibadan
+        </div>
+      </div>
+      <div class="proof-item fade-in">
+        <p class="proof-quote">"This is better than any career advice I have ever received. And I got it in 60 seconds for free."</p>
+        <div class="proof-author">
+          <strong>Temi O.</strong>
+          Medicine · University of Ibadan
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI OPPORTUNITIES & TRENDS -->
+<!-- Main Container Layout -->
+
+<div style="background-color: #f9f9f9; width: 100%; padding: 60px 0; box-sizing: border-box; display: flex; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <div id="ommi-news-section" style="width: 100%; max-width: 1200px; padding: 0 24px; box-sizing: border-box; color: #111;">
+   
+    <p style="text-transform: uppercase; font-size: 11px; letter-spacing: 2px; color: #888; font-weight: 700; margin: 0 0 12px 0;">AI OPPORTUNITIES AND TRENDS</p>
+    <h1 style="font-family: 'Playfair Display', Georgia, serif; font-size: 42px; font-weight: 800; margin: 0 0 16px 0; letter-spacing: -1px;">Stay current with AI.</h1>
+    <p style="font-size: 16px; color: #666; margin: 0 0 48px 0; font-weight: 400; max-width: 600px; line-height: 1.5;">The AI landscape moves fast. Here is what you need to know right now.</p>
+   
+    <div id="rss-feed" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; width: 100%; box-sizing: border-box;">
+      <p style="color:#666; font-size: 14px;">Loading latest updates...</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Using a backup demo feed to make sure it loads even while you are working locally
+  fetch('https://api.rss2json.com/v1/api.json?rss_url=https://techcrunch.com/category/artificial-intelligence/feed/')
+    .then(response => {
+      if (!response.ok) throw new Error('Network response error');
+      return response.json();
+    })
+    .then(data => {
+      let html = '';
+      const categories = ['TOOLS', 'CAREERS', 'LEARNING', 'MARKET', 'SKILLS', 'RESOURCE'];
+
+      if (!data.items || data.items.length === 0) {
+        document.getElementById('rss-feed').innerHTML = '<p style="color:#666;">No recent updates found.</p>';
+        return;
+      }
+
+      // Slice is now set to 6 to load exactly 6 cards!
+      data.items.slice(0, 6).forEach((item, index) => {
+        let rawTitle = item.title;
+        let displayTag = categories[index % categories.length];
+       
+        let studentTakeaway = "";
+        if (displayTag === 'TOOLS' || displayTag === 'LEARNING') {
+          studentTakeaway = `Why students should care: This landscape shift introduces modular capabilities making it significantly easier to spin up active portfolios and AI-driven MVPs without an advanced engineering background.`;
+        } else if (displayTag === 'CAREERS' || displayTag === 'SKILLS') {
+          studentTakeaway = `The Career Advantage: Market demands are rapidly transitioning. Developing localized literacy in these emerging deployment pipelines positions non-technical students at the forefront of hiring sectors.`;
+        } else {
+          studentTakeaway = `The Ecosystem Outlook: This structural development signals upcoming operational shifts across global tech clusters, providing distinct early-mover venture potential for digital creators.`;
+        }
+
+        html += `
+          <div class="update-card" style="background: #ffffff; border-radius: 12px; border: 1px solid #eaeaea; padding: 36px 32px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.015); box-sizing: border-box;">
+            <div>
+              <p style="font-size: 11px; letter-spacing: 1.5px; color: #a0a0a0; font-weight: 600; text-transform: uppercase; margin: 0 0 16px 0;">
+                ${displayTag} <span style="color: #d0d0d0; margin: 0 4px;">•</span> OMMI INSIGHT
+              </p>
+             
+              <h3 style="font-size: 18px; line-height: 1.4; font-weight: 700; color: #111; margin: 0 0 16px 0;">
+                ${rawTitle}
+              </h3>
+             
+              <p style="font-size: 14px; line-height: 1.6; color: #444; margin: 0 0 28px 0; font-weight: 400; background-color: #fafafa; padding: 16px; border-left: 3px solid #111; border-radius: 4px;">
+                ${studentTakeaway}
+              </p>
+            </div>
+           
+            <a href="${item.link}" target="_blank" style="text-decoration: none; color: #111111; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; margin-top: auto; width: fit-content;">
+              Read More <span style="font-size: 16px; line-height: 1;">→</span>
+            </a>
+          </div>
+        `;
+      });
+
+      document.getElementById('rss-feed').innerHTML = html;
+    })
+    .catch(err => {
+      console.error(err);
+      // Clean fallback layout structure if local browser blocks the live fetch request
+      document.getElementById('rss-feed').innerHTML = `
+        <div style="grid-column: 1 / -1; background: #ffffff; border: 1px dashed #cccccc; border-radius: 8px; padding: 40px; text-align: center; color: #666;">
+          <p style="margin: 0 0 8px 0; font-weight: 600;">Local Browser Security Shield Active</p>
+          <p style="margin: 0; font-size: 14px;">Because you opened this file directly from your computer folders, your browser is temporarily pausing the layout sync. Once you upload this file live onto Framer or your web server, the 6 columns will instantly look exactly right!</p>
+        </div>
+      `;
+    });
+});
+</script>
+
+
+
+
+
+
+<!-- COMMUNITY -->
+<section class="community">
+  <div class="container">
+    <div class="community-inner fade-in">
+      <p class="section-label">Community</p>
+      <h2 class="section-title">You are not learning alone.</h2>
+      <p class="section-sub" style="margin: 0 auto;">Join the Ommi WhatsApp community. Connect with other students on their AI learning journey. Share wins, ask questions, and hold each other accountable.</p>
+      <a href="https://chat.whatsapp.com/G3IF7G37JRxFgVAmGO0vu1" class="whatsapp-btn" target="_blank">
+        <svg class="wa-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        Join the Ommi Community
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <p class="section-label">Ready?</p>
+  <h2>Your AI career starts with one roadmap.</h2>
+  <p>It takes 3 minutes. It costs nothing. It changes your direction.</p>
+  <a href="https://tally.so/r/ZjDPLe" class="btn-white" target="_blank">Get My Free Roadmap Now</a>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="contact-inner">
+      <div class="contact-info fade-in">
+        <h3>Get in touch.</h3>
+        <p>Have questions about Ommi? Want to partner with us? We want to hear from you.</p>
+        <a href="mailto:getommiapp@gmail.com" class="contact-email">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          getommiapp@gmail.com
+        </a>
+      </div>
+      <div class="fade-in" style="flex:1; min-width:240px;">
+        <p class="section-label">Quick Links</p>
+        <div style="display:flex; flex-direction:column; gap:0.75rem; margin-top:1rem;">
+          <a href="https://tally.so/r/ZjDPLe" target="_blank" style="font-size:0.9rem; color:var(--black); text-decoration:none; display:flex; align-items:center; gap:0.5rem; font-weight:500;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Get My Free Roadmap
+          </a>
+          <a href="https://chat.whatsapp.com/G3IF7G37JRxFgVAmGO0vu1" target="_blank" style="font-size:0.9rem; color:var(--black); text-decoration:none; display:flex; align-items:center; gap:0.5rem; font-weight:500;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Join WhatsApp Community
+          </a>
+          <a href="mailto:getommiapp@gmail.com" style="font-size:0.9rem; color:var(--black); text-decoration:none; display:flex; align-items:center; gap:0.5rem; font-weight:500;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Contact Us
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>Ommi 2026 — Built for students, by a student.</span>
+  <span>getommiapp@gmail.com</span>
+</footer>
+
+<!-- CHATBOT WIDGET -->
+<div id="chat-widget">
+  <div id="chat-box">
+    <div class="chat-header">
+      <div class="chat-avatar">O</div>
+      <div class="chat-header-info">
+        <h4>Ommi Guide</h4>
+        <p>Your AI learning mentor</p>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-suggestions" id="chat-suggestions">
+      <button class="suggest-btn" onclick="sendSuggestion('What is Ommi?')">What is Ommi?</button>
+      <button class="suggest-btn" onclick="sendSuggestion('How does it work?')">How does it work?</button>
+      <button class="suggest-btn" onclick="sendSuggestion('Is it really free?')">Is it free?</button>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')sendMessage()">
+      <button id="chat-send" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
+      </button>
+    </div>
+  </div>
+  <button id="chat-toggle" onclick="toggleChat()" aria-label="Open Ommi chat">
+    <svg viewBox="0 0 24 24" id="chat-icon">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  </button>
+</div>
+
+<script>
+// ── SCROLL ANIMATIONS ──
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting) { e.target.classList.add('visible'); }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// ── CHATBOT ──
+let chatOpen = false;
+let conversationHistory = [];
+let userName = '';
+
+const responses = {
+  greeting: "Hi there! I'm your Ommi guide. I'm here to help you understand how Ommi works and answer any questions about your AI learning journey. What would you like to know?",
+  what_is: "Ommi is a free AI skill gap analyser. You answer 8 questions about your background and goals, and within 60 seconds, Ommi delivers a personalised, week-by-week AI learning roadmap to your inbox. No generic plans — yours is built specifically for you.",
+  how_works: "It's simple:\n\n1. Click 'Get My Free Roadmap'\n2. Answer 8 questions (takes ~3 mins)\n3. Ommi's AI analyses your profile\n4. Your roadmap arrives in your inbox in 60 seconds\n\nThen automated reminders keep you on track.",
+  free: "Yes — getting your roadmap is completely free. Ommi believes every student deserves access to quality career guidance, regardless of their background.",
+  sdg: "Ommi aligns with SDG 4 (Quality Education), SDG 8 (Decent Work and Economic Growth), and SDG 10 (Reduced Inequalities). We're making AI career guidance accessible to every student.",
+  roadmap: "Your roadmap includes:\n\n• Your Profile Summary\n• Your Top 3 Skill Gaps\n• A Week-by-Week Learning Plan\n• Free Resource List (YouTube, Coursera, fast.ai etc.)\n• 3 Actions You Can Take Today\n\nAll tailored to your specific situation.",
+  reminder: "After you receive your roadmap, Ommi sends automated follow-up reminders to keep you accountable to your learning plan. We check in periodically to make sure you're making progress.",
+  diff: "Unlike platforms like Coursera or Udemy that give everyone the same content, Ommi analyses YOUR specific profile — your background, goals, obstacles, and available time — and builds a roadmap just for you. That personalisation is what makes it different.",
+  default: "That's a great question! Ommi is designed to help students like you find their clear path into AI. The best way to experience it is to try it — click 'Get My Free Roadmap' at the top of the page. It only takes 3 minutes!"
+};
+
+function getResponse(msg) {
+  const m = msg.toLowerCase();
+  if(m.includes('what is') || m.includes('what\'s ommi') || m.includes('tell me about')) return responses.what_is;
+  if(m.includes('how') && (m.includes('work') || m.includes('does'))) return responses.how_works;
+  if(m.includes('free') || m.includes('cost') || m.includes('pay') || m.includes('price')) return responses.free;
+  if(m.includes('roadmap') || m.includes('what do i get') || m.includes('what will')) return responses.roadmap;
+  if(m.includes('remind') || m.includes('follow') || m.includes('track')) return responses.reminder;
+  if(m.includes('different') || m.includes('better') || m.includes('unique') || m.includes('compare')) return responses.diff;
+  if(m.includes('sdg') || m.includes('sustainable') || m.includes('impact')) return responses.sdg;
+  if(m.includes('hello') || m.includes('hi') || m.includes('hey')) return responses.greeting;
+  return responses.default;
+}
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  const box = document.getElementById('chat-box');
+  const icon = document.getElementById('chat-icon');
+  if(chatOpen) {
+    box.classList.add('open');
+    icon.innerHTML = '<path d="M18 6L6 18M6 6l12 12"/>';
+    if(conversationHistory.length === 0) {
+      setTimeout(() => addMsg(responses.greeting, 'bot'), 300);
+    }
+  } else {
+    box.classList.remove('open');
+    icon.innerHTML = '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>';
+  }
+}
+
+function addMsg(text, type) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `msg ${type}`;
+  div.style.whiteSpace = 'pre-line';
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  conversationHistory.push({type, text});
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value = '';
+  addMsg(msg, 'user');
+  document.getElementById('chat-suggestions').style.display = 'none';
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'msg bot typing';
+  typingDiv.textContent = 'Ommi is typing...';
+  typingDiv.id = 'typing-indicator';
+  document.getElementById('chat-messages').appendChild(typingDiv);
+  document.getElementById('chat-messages').scrollTop = 99999;
+  setTimeout(() => {
+    const typing = document.getElementById('typing-indicator');
+    if(typing) typing.remove();
+    const response = getResponse(msg);
+    addMsg(response, 'bot');
+  }, 800 + Math.random() * 600);
+}
+
+function sendSuggestion(text) {
+  document.getElementById('chat-input').value = text;
+  sendMessage();
+}
+</script>
+
+</body>
+</html>
