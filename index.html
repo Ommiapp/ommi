@@ -44,7 +44,7 @@ let userProgressLog = JSON.parse(localStorage.getItem('ommi_progress_tracker_v2'
 // 1. Fetch with Caching to prevent 429 errors
 async function fetchLiveRoadmap() {
   const cachedRoadmap = localStorage.getItem('ommi_cached_roadmap');
-  
+
   if (cachedRoadmap) {
     console.log("CACHE: Using saved roadmap data...");
     dynamicRoadmap = JSON.parse(cachedRoadmap);
@@ -52,24 +52,24 @@ async function fetchLiveRoadmap() {
     return;
   }
 
- // 55: console.log("FETCH: Attempting to connect to Vercel API...");
-// 56: try {
-// 57: const response = await fetch("/api/roadmap", {  // <--- CHANGE THIS LINE
-// 58:   method: 'POST',
-// 59:   headers: { 'Content-Type': 'application/json' },
-// 60:   body: JSON.stringify({ action: "get_roadmap" })
-// 61: });
+  console.log("FETCH: Attempting to connect to Vercel API...");
+  try {
+    const response = await fetch("/api/roadmap", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: "get_roadmap" })
+    });
 
     const data = await response.json();
     console.log("FETCH: Received data:", data);
 
     if (data && data.roadmap) {
-        dynamicRoadmap = data.roadmap;
-        localStorage.setItem('ommi_cached_roadmap', JSON.stringify(data.roadmap));
-        document.getElementById('user-archetype').innerText = data.careerGoal || "Digital Creator";
-        renderMvpDashboard();
+      dynamicRoadmap = data.roadmap;
+      localStorage.setItem('ommi_cached_roadmap', JSON.stringify(data.roadmap));
+      document.getElementById('user-archetype').innerText = data.careerGoal || "Digital Creator";
+      renderMvpDashboard();
     } else {
-        console.warn("FETCH: Data received but no roadmap found.");
+      console.warn("FETCH: Data received but no roadmap found.");
     }
   } catch (err) {
     console.error("FETCH: Critical error:", err);
