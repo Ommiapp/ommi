@@ -50,16 +50,36 @@ let userProgressLog = JSON.parse(localStorage.getItem('ommi_progress_tracker_v2'
 async function fetchLiveRoadmap() {
   try {
     // Verified Pipedream Access Endpoint
-    // Verified Pipedream Access Endpoint
+// The new Pipedream URL
 const PIPEDREAM_URL = "https://eo5hlpyl61ch184.m.pipedream.net";
 
 const response = await fetch(PIPEDREAM_URL, {
     method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ "action": "get_roadmap" })
 });
+
+const rawData = await response.json();
+console.log("FULL DATA RECEIVED:", rawData);
+
+// Set your main data variable
+const liveData = rawData.roadmap;
+
+// Update the user archetype name
+if (rawData.careerGoal) {
+    document.getElementById('user-archetype').innerText = rawData.careerGoal;
+}
+
+const rawData = await response.json();
+console.log("FULL DATA RECEIVED:", rawData);
+
+// Set your main data variable
+const liveData = rawData.roadmap;
+
+// Update the user archetype name
+if (rawData.careerGoal) {
+    document.getElementById('user-archetype').innerText = rawData.careerGoal;
+}
 
 if (!response.ok) throw new Error("Data retrieval connection unsuccessful.");
 
