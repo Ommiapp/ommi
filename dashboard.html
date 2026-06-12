@@ -41,40 +41,45 @@ let dynamicRoadmap = {
 let activeTab = 'weeks_1_2';
 let userProgressLog = JSON.parse(localStorage.getItem('ommi_progress_tracker_v2')) || {};
 
-// 1. The Async function handles the "wait" for the server
+// 1. Dedicated async function to talk to Pipedream
 async function fetchLiveRoadmap() {
+  console.log("FETCH: Attempting to connect to Pipedream...");
   try {
     const response = await fetch("https://eo5hlpyl61ch184.m.pipedream.net", {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ "action": "get_roadmap" })
     });
+
     const data = await response.json();
-    
-    // Only update if we actually got a roadmap back
+    console.log("FETCH: Received data:", data);
+
     if (data && data.roadmap) {
         dynamicRoadmap = data.roadmap;
         document.getElementById('user-archetype').innerText = data.careerGoal || "Digital Creator";
+        console.log("FETCH: Data assigned. Calling render...");
         renderMvpDashboard();
+    } else {
+        console.warn("FETCH: Data received but no roadmap found in it.");
     }
   } catch (err) {
-    console.error("Fetch Error:", err);
+    console.error("FETCH: Critical error:", err);
   }
 }
 
-// 2. The Render function builds your HTML cards
+// 2. The Renderer function
 function renderMvpDashboard() {
+  console.log("RENDER: Starting render for tab:", activeTab);
   let htmlBlock = '';
   const currentCourses = dynamicRoadmap[activeTab] || [];
   
   if (currentCourses.length === 0) {
-    htmlBlock = `<p style="color: #666; padding: 40px 0;">Loading your roadmap...</p>`;
+    htmlBlock = `<p style="color: #666; padding: 40px 0;">No roadmap data loaded yet.</p>`;
   } else {
     currentCourses.forEach(course => {
       const isCompleted = userProgressLog[course.id] === true;
       htmlBlock += `
         <div style="background: #ffffff; border-radius: 12px; border: 1px solid ${isCompleted ? '#111111' : '#eaeaea'}; padding: 24px;">
-          <p style="font-size: 11px; color: #a0a0a0; font-weight: 600; text-transform: uppercase;">${course.tag || 'SPRINT'}</p>
           <h3 style="font-size: 16px; margin: 10px 0;">${course.title}</h3>
           <a href="${course.link}" target="_blank" style="display:block; margin-bottom: 20px; color: #111;">Launch Resource ↗</a>
           <button onclick="toggleCourseMilestone('${course.id}')" style="width: 100%; padding: 10px; cursor: pointer; border-radius: 6px; border: 1px solid #111; background: ${isCompleted ? '#111' : '#fff'}; color: ${isCompleted ? '#fff' : '#111'}">
@@ -85,16 +90,12 @@ function renderMvpDashboard() {
     });
   }
   document.getElementById('ommi-mvp-grid').innerHTML = htmlBlock;
+  console.log("RENDER: Dashboard updated.");
 }
 
+// 3. Tab switching
 window.switchTimelineTab = function(tabId) {
   activeTab = tabId;
-  document.querySelectorAll('.week-tab').forEach(btn => {
-    btn.style.background = 'transparent';
-    btn.style.color = '#666666';
-  });
-  document.getElementById(`tab_${tabId}`).style.background = '#111111';
-  document.getElementById(`tab_${tabId}`).style.color = '#ffffff';
   renderMvpDashboard();
 }
 
@@ -104,8 +105,9 @@ window.toggleCourseMilestone = function(courseId) {
   renderMvpDashboard();
 }
 
-// 3. This triggers both tasks once the page is fully ready
+// 4. Trigger on load
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("INIT: DOM Loaded. Starting process.");
   renderMvpDashboard();
   fetchLiveRoadmap();
 });
