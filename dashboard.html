@@ -41,6 +41,7 @@ let dynamicRoadmap = {
 let activeTab = 'weeks_1_2';
 let userProgressLog = JSON.parse(localStorage.getItem('ommi_progress_tracker_v2')) || {};
 
+// 1. The Async function handles the "wait" for the server
 async function fetchLiveRoadmap() {
   try {
     const response = await fetch("https://eo5hlpyl61ch184.m.pipedream.net", {
@@ -49,6 +50,8 @@ async function fetchLiveRoadmap() {
       body: JSON.stringify({ "action": "get_roadmap" })
     });
     const data = await response.json();
+    
+    // Only update if we actually got a roadmap back
     if (data && data.roadmap) {
         dynamicRoadmap = data.roadmap;
         document.getElementById('user-archetype').innerText = data.careerGoal || "Digital Creator";
@@ -59,11 +62,13 @@ async function fetchLiveRoadmap() {
   }
 }
 
+// 2. The Render function builds your HTML cards
 function renderMvpDashboard() {
   let htmlBlock = '';
   const currentCourses = dynamicRoadmap[activeTab] || [];
+  
   if (currentCourses.length === 0) {
-    htmlBlock = `<p style="color: #666; padding: 40px 0;">No milestones found.</p>`;
+    htmlBlock = `<p style="color: #666; padding: 40px 0;">Loading your roadmap...</p>`;
   } else {
     currentCourses.forEach(course => {
       const isCompleted = userProgressLog[course.id] === true;
@@ -99,6 +104,7 @@ window.toggleCourseMilestone = function(courseId) {
   renderMvpDashboard();
 }
 
+// 3. This triggers both tasks once the page is fully ready
 document.addEventListener("DOMContentLoaded", () => {
   renderMvpDashboard();
   fetchLiveRoadmap();
