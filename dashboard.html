@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,7 +35,6 @@
 </div>
 
 <script>
-// Empty starting roadmap layout - will be filled completely by your Pipedream webhook
 let dynamicRoadmap = {
   weeks_1_2: [], weeks_3_4: [], weeks_5_6: [], weeks_7_8: [], weeks_9_10: [], weeks_11_12: []
 };
@@ -44,132 +42,74 @@ let dynamicRoadmap = {
 let activeTab = 'weeks_1_2';
 let userProgressLog = JSON.parse(localStorage.getItem('ommi_progress_tracker_v2')) || {};
 
-// ==========================================
-// LIVE PRODUCTION DATA GATEWAY
-// ==========================================
 async function fetchLiveRoadmap() {
   try {
-    // Verified Pipedream Access Endpoint
-// The new Pipedream URL
-const PIPEDREAM_URL = "https://eo5hlpyl61ch184.m.pipedream.net";
+    const PIPEDREAM_URL = "https://eo5hlpyl61ch184.m.pipedream.net";
+    const response = await fetch(PIPEDREAM_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ "action": "get_roadmap" })
+    });
 
-const response = await fetch(PIPEDREAM_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ "action": "get_roadmap" })
-});
+    if (!response.ok) throw new Error("Connection unsuccessful");
 
-const rawData = await response.json();
-console.log("FULL DATA RECEIVED:", rawData);
+    const rawData = await response.json();
+    console.log("FULL DATA RECEIVED:", rawData);
 
-// Set your main data variable
-const liveData = rawData.roadmap;
+    document.getElementById('user-archetype').innerText = rawData.careerGoal || "Custom Path";
 
-// Update the user archetype name
-if (rawData.careerGoal) {
-    document.getElementById('user-archetype').innerText = rawData.careerGoal;
-}
-
-const rawData = await response.json();
-console.log("FULL DATA RECEIVED:", rawData);
-
-// Set your main data variable
-const liveData = rawData.roadmap;
-
-// Update the user archetype name
-if (rawData.careerGoal) {
-    document.getElementById('user-archetype').innerText = rawData.careerGoal;
-}
-
-if (!response.ok) throw new Error("Data retrieval connection unsuccessful.");
-
-const liveData = await response.json();
-   
-    // Dynamically insert the user's actual generated career track name
-    if (liveData.careerGoal) {
-      document.getElementById('user-archetype').innerText = liveData.careerGoal;
-    } else {
-      document.getElementById('user-archetype').innerText = "Custom Path";
-    }
-
-    const roadmapPayload = liveData.roadmap || liveData;
-   
+    const roadmapPayload = rawData.roadmap || {};
     Object.keys(roadmapPayload).forEach(key => {
       dynamicRoadmap[key] = roadmapPayload[key];
     });
-   
+    
     renderMvpDashboard();
   } catch (error) {
-    console.error("Could not fetch cloud data, loading local empty template states:", error);
+    console.error("Fetch error:", error);
     document.getElementById('user-archetype').innerText = "Awaiting Setup";
     renderMvpDashboard();
   }
 }
-// ==========================================
 
 function renderMvpDashboard() {
   let htmlBlock = '';
   const currentCourses = dynamicRoadmap[activeTab] || [];
  
   if (currentCourses.length === 0) {
-    htmlBlock = `<p style="color: #666; font-size: 14px; grid-column: 1/-1; text-align: center; padding: 40px 0;">No milestones compiled for this timeline block yet. Complete your profile registration to synchronize data.</p>`;
+    htmlBlock = `<p style="color: #666; font-size: 14px; grid-column: 1/-1; text-align: center; padding: 40px 0;">No milestones compiled yet. Check your connection or submit the form.</p>`;
     document.getElementById('ommi-mvp-grid').innerHTML = htmlBlock;
     return;
   }
  
   currentCourses.forEach(course => {
     const isCompleted = userProgressLog[course.id] === true;
-   
-    const cardBg = isCompleted ? '#fdfdfd' : '#ffffff';
-    const borderColor = isCompleted ? '#111111' : '#eaeaea';
-    const checkIcon = isCompleted ? '✓' : '';
-    const btnText = isCompleted ? 'Completed' : 'Mark as Complete';
-    const btnBg = isCompleted ? '#111111' : '#ffffff';
-    const btnTextColor = isCompleted ? '#ffffff' : '#111111';
-
     htmlBlock += `
-      <div style="background: ${cardBg}; border-radius: 12px; border: 1px solid ${borderColor}; padding: 28px 24px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.01); box-sizing: border-box;">
+      <div style="background: ${isCompleted ? '#fdfdfd' : '#ffffff'}; border-radius: 12px; border: 1px solid ${isCompleted ? '#111111' : '#eaeaea'}; padding: 28px 24px; display: flex; flex-direction: column; justify-content: space-between;">
         <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <p style="font-size: 11px; letter-spacing: 1.5px; color: #a0a0a0; font-weight: 600; text-transform: uppercase; margin: 0;">
-              ${course.tag || 'SPRINT'} • OMMI CORE
-            </p>
-            <div style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #111111; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; background: ${isCompleted ? '#111111' : 'transparent'}; color: white;">
-              ${checkIcon}
-            </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+            <p style="font-size: 11px; color: #a0a0a0; font-weight: 600; text-transform: uppercase;">${course.tag || 'SPRINT'}</p>
+            <div style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #111; background: ${isCompleted ? '#111' : 'transparent'}"></div>
           </div>
-         
-          <h3 style="font-size: 16px; line-height: 1.4; font-weight: 700; color: #111; margin: 0 0 16px 0; min-height: 44px;">
-            ${course.title}
-          </h3>
-         
-          <a href="${course.link}" target="_blank" style="text-decoration: none; color: #111111; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 24px;">
-            Launch Class Resource <span style="font-size: 14px;">↗</span>
-          </a>
+          <h3 style="font-size: 16px; font-weight: 700; margin: 0 0 16px 0;">${course.title}</h3>
+          <a href="${course.link}" target="_blank" style="text-decoration: none; color: #111; font-weight: 600; font-size: 13px; display: block; margin-bottom: 24px;">Launch Resource ↗</a>
         </div>
-       
-        <button onclick="toggleCourseMilestone('${course.id}')" style="width: 100%; border: 1px solid #111111; background: ${btnBg}; color: ${btnTextColor}; padding: 10px 0; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer;">
-          ${btnText}
+        <button onclick="toggleCourseMilestone('${course.id}')" style="width: 100%; border: 1px solid #111; background: ${isCompleted ? '#111' : '#fff'}; color: ${isCompleted ? '#fff' : '#111'}; padding: 10px; border-radius: 6px; cursor: pointer;">
+          ${isCompleted ? 'Completed' : 'Mark as Complete'}
         </button>
       </div>
     `;
   });
- 
   document.getElementById('ommi-mvp-grid').innerHTML = htmlBlock;
 }
 
 window.switchTimelineTab = function(tabId) {
   activeTab = tabId;
- 
   document.querySelectorAll('.week-tab').forEach(btn => {
     btn.style.background = 'transparent';
     btn.style.color = '#666666';
   });
- 
-  const activeBtn = document.getElementById(`tab_${tabId}`);
-  activeBtn.style.background = '#111111';
-  activeBtn.style.color = '#ffffff';
- 
+  document.getElementById(`tab_${tabId}`).style.background = '#111111';
+  document.getElementById(`tab_${tabId}`).style.color = '#ffffff';
   renderMvpDashboard();
 }
 
@@ -184,6 +124,5 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchLiveRoadmap();
 });
 </script>
-
 </body>
 </html>
