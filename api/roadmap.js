@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
   if (!GEMINI_API_KEY) {
-    return res.status(500).json({ error: "Missing API Key" });
+    return res.status(500).json({ error: "Missing API Key in Vercel settings" });
   }
 
   try {
@@ -16,7 +16,11 @@ export default async function handler(req, res) {
 
     const aiData = await response.json();
     
-    // Extracting text safely
+    // Safety check for Gemini response structure
+    if (!aiData.candidates || !aiData.candidates[0].content.parts[0].text) {
+      throw new Error("Invalid response from Gemini");
+    }
+
     const aiText = aiData.candidates[0].content.parts[0].text;
     const cleanJson = JSON.parse(aiText.replace(/```json/g, '').replace(/```/g, ''));
     
