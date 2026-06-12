@@ -50,12 +50,20 @@ let userProgressLog = JSON.parse(localStorage.getItem('ommi_progress_tracker_v2'
 async function fetchLiveRoadmap() {
   try {
     // Verified Pipedream Access Endpoint
-    const PIPEDREAM_URL = "https://eo5hlpyl61ch184.m.pipedream.net";
-   
-    const response = await fetch(PIPEDREAM_URL);
-    if (!response.ok) throw new Error("Data retrieval connection unsuccessful.");
-   
-    const liveData = await response.json();
+    // Verified Pipedream Access Endpoint
+const PIPEDREAM_URL = "https://eo5hlpyl61ch184.m.pipedream.net";
+
+const response = await fetch(PIPEDREAM_URL, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ "action": "get_roadmap" })
+});
+
+if (!response.ok) throw new Error("Data retrieval connection unsuccessful.");
+
+const liveData = await response.json();
    
     // Dynamically insert the user's actual generated career track name
     if (liveData.careerGoal) {
