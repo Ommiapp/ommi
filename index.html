@@ -52,13 +52,13 @@ async function fetchLiveRoadmap() {
     return;
   }
 
-  console.log("FETCH: Attempting to connect to Pipedream...");
-  try {
-    const response = await fetch("https://eo5hlpyl61ch184.m.pipedream.net", {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ "action": "get_roadmap" })
-    });
+ // 55: console.log("FETCH: Attempting to connect to Vercel API...");
+// 56: try {
+// 57: const response = await fetch("/api/roadmap", {  // <--- CHANGE THIS LINE
+// 58:   method: 'POST',
+// 59:   headers: { 'Content-Type': 'application/json' },
+// 60:   body: JSON.stringify({ action: "get_roadmap" })
+// 61: });
 
     const data = await response.json();
     console.log("FETCH: Received data:", data);
