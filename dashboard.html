@@ -51,6 +51,22 @@ async function fetchLiveRoadmap() {
       body: JSON.stringify({ "action": "get_roadmap" })
     });
 
+    const data = await response.json();
+    console.log("DATA RECEIVED IN DASHBOARD:", data);
+
+    // 1. Update the Career Goal text
+    document.getElementById('user-archetype').innerText = data.careerGoal || "Digital Creator";
+
+    // 2. THIS IS THE FIX: Explicitly assign the incoming data to your dashboard's roadmap variable
+    if (data.roadmap) {
+        dynamicRoadmap = data.roadmap;
+        renderMvpDashboard(); // Force a re-render now that data is here
+    }
+  } catch (error) {
+    console.error("Fetch error:", error);
+  }
+}
+
     const rawData = await response.json();
     
     // Update user archetype
