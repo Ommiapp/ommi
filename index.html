@@ -41,57 +41,43 @@ let dynamicRoadmap = {
 let activeTab = 'weeks_1_2';
 let userProgressLog = JSON.parse(localStorage.getItem('ommi_progress_tracker_v2')) || {};
 
-// 1. Fetch with Caching to prevent 429 errors
 async function fetchLiveRoadmap() {
   const cachedRoadmap = localStorage.getItem('ommi_cached_roadmap');
-
   if (cachedRoadmap) {
-    console.log("CACHE: Using saved roadmap data...");
     dynamicRoadmap = JSON.parse(cachedRoadmap);
     renderMvpDashboard();
     return;
   }
 
-  console.log("FETCH: Attempting to connect to Vercel API...");
   try {
-    const response = await fetch("/api/roadmap", {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: "get_roadmap" })
-    });
-
+    const response = await fetch("/api/roadmap", { method: 'POST' });
     const data = await response.json();
-    console.log("FETCH: Received data:", data);
-
+    
     if (data && data.roadmap) {
       dynamicRoadmap = data.roadmap;
       localStorage.setItem('ommi_cached_roadmap', JSON.stringify(data.roadmap));
       document.getElementById('user-archetype').innerText = data.careerGoal || "Digital Creator";
       renderMvpDashboard();
-    } else {
-      console.warn("FETCH: Data received but no roadmap found.");
     }
   } catch (err) {
-    console.error("FETCH: Critical error:", err);
+    console.error("Fetch Error:", err);
   }
 }
 
-// 2. The Renderer function
 function renderMvpDashboard() {
-  console.log("RENDER: Starting render for tab:", activeTab);
   let htmlBlock = '';
   const currentCourses = dynamicRoadmap[activeTab] || [];
   
   if (currentCourses.length === 0) {
-    htmlBlock = `<p style="color: #666; padding: 40px 0;">No roadmap data loaded yet.</p>`;
+    htmlBlock = `<p style="padding: 40px 0;">No roadmap data loaded yet.</p>`;
   } else {
     currentCourses.forEach(course => {
       const isCompleted = userProgressLog[course.id] === true;
       htmlBlock += `
-        <div style="background: #ffffff; border-radius: 12px; border: 1px solid ${isCompleted ? '#111111' : '#eaeaea'}; padding: 24px;">
-          <h3 style="font-size: 16px; margin: 10px 0;">${course.title}</h3>
+        <div style="background: #fff; border-radius: 12px; border: 1px solid ${isCompleted ? '#111' : '#eaeaea'}; padding: 24px;">
+          <h3 style="font-size: 16px;">${course.title}</h3>
           <a href="${course.link}" target="_blank" style="display:block; margin-bottom: 20px; color: #111;">Launch Resource ↗</a>
-          <button onclick="toggleCourseMilestone('${course.id}')" style="width: 100%; padding: 10px; cursor: pointer; border-radius: 6px; border: 1px solid #111; background: ${isCompleted ? '#111' : '#fff'}; color: ${isCompleted ? '#fff' : '#111'}">
+          <button onclick="toggleCourseMilestone('${course.id}')" style="width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; background: ${isCompleted ? '#111' : '#fff'}; color: ${isCompleted ? '#fff' : '#111'}">
             ${isCompleted ? 'Completed' : 'Mark as Complete'}
           </button>
         </div>
@@ -101,16 +87,13 @@ function renderMvpDashboard() {
   document.getElementById('ommi-mvp-grid').innerHTML = htmlBlock;
 }
 
-// 3. Tab switching
 window.switchTimelineTab = function(tabId) {
   activeTab = tabId;
-  // Update UI for buttons
   document.querySelectorAll('.week-tab').forEach(btn => {
-    btn.style.background = 'transparent';
-    btn.style.color = '#666666';
+    btn.style.background = 'transparent'; btn.style.color = '#666';
   });
-  document.getElementById(`tab_${tabId}`).style.background = '#111111';
-  document.getElementById(`tab_${tabId}`).style.color = '#ffffff';
+  document.getElementById(`tab_${tabId}`).style.background = '#111';
+  document.getElementById(`tab_${tabId}`).style.color = '#fff';
   renderMvpDashboard();
 }
 
@@ -120,7 +103,6 @@ window.toggleCourseMilestone = function(courseId) {
   renderMvpDashboard();
 }
 
-// 4. Trigger on load
 document.addEventListener("DOMContentLoaded", () => {
   renderMvpDashboard();
   fetchLiveRoadmap();
