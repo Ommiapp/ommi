@@ -20,15 +20,15 @@
     </p>
    
     <div style="display: flex; gap: 8px; border-bottom: 1px solid #eaeaea; padding-bottom: 16px; margin-bottom: 40px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
-      <button class="week-tab" id="tab_weeks_1_2" onclick="switchTimelineTab('weeks_1_2')" style="background: #111111; color: #ffffff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s;">Weeks 1–2</button>
-      <button class="week-tab" id="tab_weeks_3_4" onclick="switchTimelineTab('weeks_3_4')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s;">Weeks 3–4</button>
-      <button class="week-tab" id="tab_weeks_5_6" onclick="switchTimelineTab('weeks_5_6')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s;">Weeks 5–6</button>
-      <button class="week-tab" id="tab_weeks_7_8" onclick="switchTimelineTab('weeks_7_8')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s;">Weeks 7–8</button>
-      <button class="week-tab" id="tab_weeks_9_10" onclick="switchTimelineTab('weeks_9_10')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s;">Weeks 9–10</button>
-      <button class="week-tab" id="tab_weeks_11_12" onclick="switchTimelineTab('weeks_11_12')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s;">Weeks 11–12</button>
+      <button class="week-tab" id="tab_weeks_1_2" onclick="switchTimelineTab('weeks_1_2')" style="background: #111111; color: #ffffff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer;">Weeks 1–2</button>
+      <button class="week-tab" id="tab_weeks_3_4" onclick="switchTimelineTab('weeks_3_4')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer;">Weeks 3–4</button>
+      <button class="week-tab" id="tab_weeks_5_6" onclick="switchTimelineTab('weeks_5_6')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer;">Weeks 5–6</button>
+      <button class="week-tab" id="tab_weeks_7_8" onclick="switchTimelineTab('weeks_7_8')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer;">Weeks 7–8</button>
+      <button class="week-tab" id="tab_weeks_9_10" onclick="switchTimelineTab('weeks_9_10')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer;">Weeks 9–10</button>
+      <button class="week-tab" id="tab_weeks_11_12" onclick="switchTimelineTab('weeks_11_12')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer;">Weeks 11–12</button>
     </div>
    
-    <div id="ommi-mvp-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; width: 100%; box-sizing: border-box;">
+    <div id="ommi-mvp-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; width: 100%;">
     </div>
 
   </div>
@@ -51,17 +51,15 @@ async function fetchLiveRoadmap() {
       body: JSON.stringify({ "action": "get_roadmap" })
     });
 
-    if (!response.ok) throw new Error("Connection unsuccessful");
-
     const rawData = await response.json();
-    console.log("FULL DATA RECEIVED:", rawData);
-
+    
+    // Update user archetype
     document.getElementById('user-archetype').innerText = rawData.careerGoal || "Custom Path";
 
-    const roadmapPayload = rawData.roadmap || {};
-    Object.keys(roadmapPayload).forEach(key => {
-      dynamicRoadmap[key] = roadmapPayload[key];
-    });
+    // Safely update roadmap
+    if (rawData.roadmap) {
+        dynamicRoadmap = rawData.roadmap;
+    }
     
     renderMvpDashboard();
   } catch (error) {
@@ -76,29 +74,22 @@ function renderMvpDashboard() {
   const currentCourses = dynamicRoadmap[activeTab] || [];
  
   if (currentCourses.length === 0) {
-    htmlBlock = `<p style="color: #666; font-size: 14px; grid-column: 1/-1; text-align: center; padding: 40px 0;">No milestones compiled yet. Check your connection or submit the form.</p>`;
-    document.getElementById('ommi-mvp-grid').innerHTML = htmlBlock;
-    return;
-  }
- 
-  currentCourses.forEach(course => {
-    const isCompleted = userProgressLog[course.id] === true;
-    htmlBlock += `
-      <div style="background: ${isCompleted ? '#fdfdfd' : '#ffffff'}; border-radius: 12px; border: 1px solid ${isCompleted ? '#111111' : '#eaeaea'}; padding: 28px 24px; display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+    htmlBlock = `<p style="color: #666; padding: 40px 0;">No milestones found. Ensure your profile form is submitted correctly.</p>`;
+  } else {
+      currentCourses.forEach(course => {
+        const isCompleted = userProgressLog[course.id] === true;
+        htmlBlock += `
+          <div style="background: ${isCompleted ? '#fdfdfd' : '#ffffff'}; border-radius: 12px; border: 1px solid ${isCompleted ? '#111111' : '#eaeaea'}; padding: 24px;">
             <p style="font-size: 11px; color: #a0a0a0; font-weight: 600; text-transform: uppercase;">${course.tag || 'SPRINT'}</p>
-            <div style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #111; background: ${isCompleted ? '#111' : 'transparent'}"></div>
+            <h3 style="font-size: 16px; margin: 10px 0;">${course.title}</h3>
+            <a href="${course.link}" target="_blank" style="display:block; margin-bottom: 20px; color: #111;">Launch Resource ↗</a>
+            <button onclick="toggleCourseMilestone('${course.id}')" style="width: 100%; padding: 10px; cursor: pointer; border-radius: 6px; border: 1px solid #111; background: ${isCompleted ? '#111' : '#fff'}; color: ${isCompleted ? '#fff' : '#111'}">
+              ${isCompleted ? 'Completed' : 'Mark as Complete'}
+            </button>
           </div>
-          <h3 style="font-size: 16px; font-weight: 700; margin: 0 0 16px 0;">${course.title}</h3>
-          <a href="${course.link}" target="_blank" style="text-decoration: none; color: #111; font-weight: 600; font-size: 13px; display: block; margin-bottom: 24px;">Launch Resource ↗</a>
-        </div>
-        <button onclick="toggleCourseMilestone('${course.id}')" style="width: 100%; border: 1px solid #111; background: ${isCompleted ? '#111' : '#fff'}; color: ${isCompleted ? '#fff' : '#111'}; padding: 10px; border-radius: 6px; cursor: pointer;">
-          ${isCompleted ? 'Completed' : 'Mark as Complete'}
-        </button>
-      </div>
-    `;
-  });
+        `;
+      });
+  }
   document.getElementById('ommi-mvp-grid').innerHTML = htmlBlock;
 }
 
