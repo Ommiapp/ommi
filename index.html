@@ -4,22 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ommi Learning Workspace</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+  <!-- Fonts and Styles remain the same -->
 </head>
 <body style="margin: 0; padding: 0; background-color: #f9f9f9;">
 
 <div style="width: 100%; padding: 60px 0; box-sizing: border-box; display: flex; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
   <div style="width: 100%; max-width: 1200px; padding: 0 24px; box-sizing: border-box; color: #111;">
-    
     <p style="text-transform: uppercase; font-size: 11px; letter-spacing: 2px; color: #888; font-weight: 700; margin: 0 0 12px 0;">YOUR PERSONALIZED ROADMAP</p>
     <h1 style="font-family: 'Playfair Display', Georgia, serif; font-size: 42px; font-weight: 800; margin: 0 0 16px 0; letter-spacing: -1px;">Learning Workspace</h1>
     <p style="font-size: 16px; color: #666; margin: 0 0 40px 0; font-weight: 400; max-width: 600px; line-height: 1.5;">
-      Select a timeline block below to view your structured sprint goals and track your completions. Tracked Track: <span id="user-archetype" style="font-weight: 600; color: #111;">Loading Track...</span>
+      Select a timeline block below to view your structured sprint goals. Track: <span id="user-archetype" style="font-weight: 600; color: #111;">Loading...</span>
     </p>
     
-    <div style="display: flex; gap: 8px; border-bottom: 1px solid #eaeaea; padding-bottom: 16px; margin-bottom: 40px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
+    <!-- Timeline Tabs -->
+    <div style="display: flex; gap: 8px; border-bottom: 1px solid #eaeaea; padding-bottom: 16px; margin-bottom: 40px; overflow-x: auto; white-space: nowrap;">
       <button class="week-tab" id="tab_weeks_1_2" onclick="switchTimelineTab('weeks_1_2')" style="background: #111111; color: #ffffff; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer;">Weeks 1–2</button>
       <button class="week-tab" id="tab_weeks_3_4" onclick="switchTimelineTab('weeks_3_4')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer;">Weeks 3–4</button>
       <button class="week-tab" id="tab_weeks_5_6" onclick="switchTimelineTab('weeks_5_6')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer;">Weeks 5–6</button>
@@ -28,35 +26,34 @@
       <button class="week-tab" id="tab_weeks_11_12" onclick="switchTimelineTab('weeks_11_12')" style="background: transparent; color: #666666; border: none; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 20px; cursor: pointer;">Weeks 11–12</button>
     </div>
     
-    <div id="ommi-mvp-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; width: 100%;">
-    </div>
-
+    <div id="ommi-mvp-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; width: 100%;"></div>
   </div>
 </div>
 
 <script>
-let dynamicRoadmap = {
-  weeks_1_2: [], weeks_3_4: [], weeks_5_6: [], weeks_7_8: [], weeks_9_10: [], weeks_11_12: []
-};
+let dynamicRoadmap = { weeks_1_2: [], weeks_3_4: [], weeks_5_6: [], weeks_7_8: [], weeks_9_10: [], weeks_11_12: [] };
 let activeTab = 'weeks_1_2';
 let userProgressLog = JSON.parse(localStorage.getItem('ommi_progress_tracker_v2')) || {};
 
 async function fetchLiveRoadmap() {
-  const cachedRoadmap = localStorage.getItem('ommi_cached_roadmap');
-  if (cachedRoadmap) {
-    dynamicRoadmap = JSON.parse(cachedRoadmap);
-    renderMvpDashboard();
-    return;
-  }
+  const urlParams = new URLSearchParams(window.location.search);
+  const userGoal = urlParams.get('goal') || "Digital Creator";
+  
+  // Directly hitting your Pipedream URL
+  const PIPEDREAM_ENDPOINT = "https://eovn1ab2jnr737h.m.pipedream.net";
 
   try {
-    const response = await fetch("/api/roadmap", { method: 'POST' });
+    const response = await fetch(PIPEDREAM_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ goal: userGoal })
+    });
+    
     const data = await response.json();
     
     if (data && data.roadmap) {
       dynamicRoadmap = data.roadmap;
-      localStorage.setItem('ommi_cached_roadmap', JSON.stringify(data.roadmap));
-      document.getElementById('user-archetype').innerText = data.careerGoal || "Digital Creator";
+      document.getElementById('user-archetype').innerText = data.careerGoal || userGoal;
       renderMvpDashboard();
     }
   } catch (err) {
